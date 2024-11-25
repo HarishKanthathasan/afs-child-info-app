@@ -8,6 +8,9 @@ module.exports = {
         secondary: '#f8a51d', // Alliance Finance yellow
         neutral: '#f3f3f3', // Light gray background
       },
+      fontFamily: {
+        sans: ["Roboto", "Lato", "sans-serif"],
+      },
     },
   },
   plugins: [],

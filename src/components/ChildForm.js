@@ -12,7 +12,7 @@ const ChildForm = ({ onChange, errors }) => {
       const eighteenthBirthdayDate = new Date(
         dobDate.getFullYear() + 18,
         dobDate.getMonth(),
-        dobDate.getDate() +1
+        dobDate.getDate()
       );
       setEighteenthBirthday(eighteenthBirthdayDate.toISOString().split('T')[0]);
     } else {
