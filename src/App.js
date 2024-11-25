@@ -30,6 +30,7 @@ const App = () => {
 
   const [errors, setErrors] = useState({});
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(""); // Token for backend validation
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleChildChange = (e) => {
@@ -121,15 +122,41 @@ const App = () => {
     return isValid;
   };
 
-  const handleCaptchaChange = (value) => {
-    if (value) {
-      setCaptchaVerified(true);
-    }
+  const handleCaptchaChange = (token) => {
+    setCaptchaVerified(true);
+    setCaptchaToken(token);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm() && captchaVerified) {
-      setModalOpen(true);
+      try {
+        const response = await fetch("http://localhost:5000/api/submit-form", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            childFormData,
+            parentFormData,
+            captchaToken, // Include CAPTCHA token for backend validation
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("Form submitted successfully:", result);
+          setModalOpen(true); // Open confirmation modal on success
+        } else {
+          console.error("Error submitting form:", result.error);
+          alert("Error submitting form: " + result.error);
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        alert("Unexpected error occurred. Please try again later.");
+      }
+    } else {
+      alert("Please complete the form and verify the CAPTCHA.");
     }
   };
 
@@ -178,8 +205,7 @@ const App = () => {
           <ConfirmationModal
             onClose={() => setModalOpen(false)}
             onConfirm={() => {
-              // Here you would handle form submission to Google Sheets or backend
-              console.log("Form submitted");
+              console.log("Form submitted successfully!");
               setModalOpen(false);
             }}
           />

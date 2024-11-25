@@ -3,7 +3,7 @@ import React from 'react';
 const ParentForm = ({ onChange, errors }) => {
   return (
     <div className="bg-white p-6 rounded shadow-lg mt-6">
-      <h2 className="text-primary text-xl font-semibold mb-4">Parent/Guardian Information</h2>
+      <h2 className="text-primary text-xl font-semibold mb-4">Parent/Guardian's Information</h2>
       <form>
         {/* Full Name */}
         <div className="mb-4">
