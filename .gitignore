@@ -22,3 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 node_modules
+
+/routesonar-289013-a4f8421db058.json
