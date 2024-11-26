@@ -1,39 +1,49 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const axios = require("axios");
 const { google } = require("googleapis");
-const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // Load Google Sheets credentials
-const credentials = JSON.parse(fs.readFileSync("google-service-account.json"));
-const { client_email, private_key } = credentials;
+const credentials = {
+  type: "service_account",
+  project_id: "routesonar-289013",
+  private_key_id: "a4f8421db0582f36ce9e6c743c78dc5bdb7c9c16",
+  private_key: `-----BEGIN PRIVATE KEY-----\nMIIEvgIBADAN...PRIVATE_KEY_DATA...==\n-----END PRIVATE KEY-----\n`,
+  client_email: "afchelios@routesonar-289013.iam.gserviceaccount.com",
+  client_id: "112752145344337536508",
+  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+  token_uri: "https://oauth2.googleapis.com/token",
+  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/afchelios%40routesonar-289013.iam.gserviceaccount.com",
+};
 
 // Google Sheets setup
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
-const auth = new google.auth.JWT(client_email, null, private_key, SCOPES);
+const auth = new google.auth.JWT(credentials.client_email, null, credentials.private_key, SCOPES);
 const sheets = google.sheets({ version: "v4", auth });
 
-// Your Google Sheet ID and range
-const SPREADSHEET_ID = "your_google_sheet_id"; // Replace with your sheet ID
-const RANGE = "Sheet1!A1:N1"; // Replace with your range
+//Google Sheet ID and range
+const SPREADSHEET_ID = " "; // Need to add Google Sheet ID
+const RANGE = "Sheet1!A1:N1"; // specific sheet range
 
-// Google reCAPTCHA secret key
-const RECAPTCHA_SECRET_KEY = "6Lexv4cqAAAAAAK_H1KnPlcxNjShbFsZJaP8E5gB";
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../build")));
 
 // API to handle form submission
 app.post("/submit", async (req, res) => {
-  const { childFormData, parentFormData, captchaToken } = req.body;
+  const { childFormData, parentFormData /*, captchaToken */ } = req.body;
 
-  // Validate reCAPTCHA
+  // Temporarily skip reCAPTCHA validation for testing
+  /*
   try {
     const captchaVerification = await axios.post(
       `https://www.google.com/recaptcha/api/siteverify`,
@@ -53,8 +63,9 @@ app.post("/submit", async (req, res) => {
     console.error("Error verifying reCAPTCHA:", err);
     return res.status(500).json({ message: "reCAPTCHA validation error" });
   }
+  */
 
-  // Validate form fields (basic server-side validation)
+  // Validate form fields
   if (
     !childFormData.childName ||
     !parentFormData.parentName ||
@@ -88,17 +99,25 @@ app.post("/submit", async (req, res) => {
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE,
-      valueInputOption: "RAW",
+      valueInputOption: "USER_ENTERED",
       resource: {
         values: [rowData],
       },
     });
 
-    res.status(200).json({ message: "Form submitted successfully" });
+    console.log("Google Sheets Response:", response.data);
+    res.status(200).json({ message: "Form submitted successfully!" });
   } catch (err) {
-    console.error("Error appending data to Google Sheets:", err);
-    res.status(500).json({ message: "Error saving data to Google Sheets" });
+    const googleError = err.response?.data?.error?.message || err.message;
+
+    console.error("Error saving data to Google Sheets:", googleError);
+    res.status(500).json({ message: `Google Sheets Error: ${googleError}` });
   }
+});
+
+// Catch-all handler for serving React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../build/index.html"));
 });
 
 // Start server

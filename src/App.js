@@ -3,7 +3,6 @@ import Header from "./components/Header";
 import ChildForm from "./components/ChildForm";
 import ParentForm from "./components/ParentForm";
 import ConfirmationModal from "./components/ConfirmationModal";
-import ReCAPTCHA from "react-google-recaptcha";
 import Footer from "./components/Footer";
 
 const App = () => {
@@ -29,26 +28,22 @@ const App = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [captchaVerified, setCaptchaVerified] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState(""); // Token for backend validation
+  const [submissionError, setSubmissionError] = useState(""); // To display below the submit button
   const [modalOpen, setModalOpen] = useState(false);
-
+  
+  // Handle changes in the child form fields
   const handleChildChange = (e) => {
     const { name, value } = e.target;
-    setChildFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setChildFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle changes in the parent form fields
   const handleParentChange = (e) => {
     const { name, value } = e.target;
-    setParentFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setParentFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Validate the entire form (client-side validation)
   const validateForm = () => {
     let formErrors = {};
     let isValid = true;
@@ -122,96 +117,61 @@ const App = () => {
     return isValid;
   };
 
-  const handleCaptchaChange = (token) => {
-    setCaptchaVerified(true);
-    setCaptchaToken(token);
-  };
-
+  // Handle the form submission
   const handleSubmit = async () => {
-    if (validateForm() && captchaVerified) {
-      try {
-        const response = await fetch("http://localhost:5000/api/submit-form", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            childFormData,
-            parentFormData,
-            captchaToken, // Include CAPTCHA token for backend validation
-          }),
-        });
+    if (!validateForm()) {
+      return;
+    }
 
-        const result = await response.json();
+    try {
+      const response = await fetch("http://localhost:5000/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ childFormData, parentFormData }),
+      });
 
-        if (response.ok) {
-          console.log("Form submitted successfully:", result);
-          setModalOpen(true); // Open confirmation modal on success
-        } else {
-          console.error("Error submitting form:", result.error);
-          alert("Error submitting form: " + result.error);
-        }
-      } catch (error) {
-        console.error("Unexpected error:", error);
-        alert("Unexpected error occurred. Please try again later.");
+      const result = await response.json();
+
+      if (response.ok) {
+        setModalOpen(true);
+        setSubmissionError("");
+      } else {
+        setSubmissionError(result.message || "Submission failed. Try again.");
       }
-    } else {
-      alert("Please complete the form and verify the CAPTCHA.");
+    } catch (error) {
+      console.error("Error submitting the form:", error);
+      setSubmissionError("An unexpected error occurred.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
       <Header />
-
-      <header className="bg-blue-600 text-white py-4 text-center text-xl font-semibold">
-        Child and Parent/Guardian Information Form
-      </header>
       <main className="flex-1 bg-gray-50 p-8">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="p-4 bg-white shadow-md rounded-md">
-            {/* Child Form */}
-            <ChildForm onChange={handleChildChange} errors={errors} />
-          </div>
-          <div className="p-4 bg-white shadow-md rounded-md">
-            {/* Parent Form */}
-            <ParentForm onChange={handleParentChange} errors={errors} />
-          </div>
+          <ChildForm onChange={handleChildChange} errors={errors} />
+          <ParentForm onChange={handleParentChange} errors={errors} />
         </div>
-
-        <div className="bg-white shadow-md rounded-md align-middle justify-self-center px-2 py-2 my-4 flex flex-col items-center">
-          {/* reCAPTCHA */}
-          <div className="text-center align-middle pt-4">
-            <ReCAPTCHA
-              sitekey="6Lexv4cqAAAAAIwtF9huxTa80Gs-Qqbr7qeMitiV"
-              onChange={handleCaptchaChange}
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-center py-4">
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700"
-            >
-              Submit
-            </button>
-          </div>
+        <div className="text-center py-4">
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700"
+          >
+            Submit
+          </button>
+          {submissionError && (
+            <p className="text-red-500 text-sm mt-2">{submissionError}</p>
+          )}
         </div>
-
-        {/* Confirmation Modal */}
         {modalOpen && (
           <ConfirmationModal
             onClose={() => setModalOpen(false)}
-            onConfirm={() => {
-              console.log("Form submitted successfully!");
-              setModalOpen(false);
-            }}
+            onConfirm={() => setModalOpen(false)}
           />
         )}
       </main>
-      {/* Footer */}
       <Footer />
     </div>
   );
