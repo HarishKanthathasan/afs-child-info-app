@@ -1,33 +1,24 @@
-import React from "react";
+import React from 'react';
+import FooterLogo from './FooterLogo';
+import FooterContact from './FooterContact';
+import FooterAwards from './FooterAwards';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 py-8">
-      <div className="container mx-auto text-center">
-        {/* Contact Details */}
-        <p className="text-gray-600">
-          Alliance House, 84, Ward Place, Colombo 07, Sri Lanka.
-        </p>
-        <p className="text-gray-600">Hotline: 1321 | Fax: +94 11 2 697 205</p>
-        <p className="text-gray-600">Email: info@alliancefinance.lk</p>
-
-        {/* Quick Links */}
-        <div className="mt-4">
-          <a href="https://www.alliancefinance.lk/privacy-cookie-policy/" className="text-blue-600 hover:underline">
-            Privacy Policy
-          </a>{" "}
-          |{" "}
-          <a href="https://www.alliancefinance.lk/site-map/" className="text-blue-600 hover:underline">
-            Sitemap
-          </a>
+    <div className="bg-[#ededed] py-12 px-6 md:px-12">
+      <div className="flex flex-wrap justify-between">
+        {/* Left Section */}
+        <div className="w-full md:w-1/2 lg:w-1/3 mb-8 md:mb-0 mx-8">
+          <FooterLogo />
+          <FooterContact />
         </div>
-
-        {/* Awards Section */}
-        <div className="mt-6">
-          <p className="text-gray-600">© 2024. Alliance Finance Company PLC</p>
-        </div>
+        
+        {/* Right Section */}
+        <div className="w-full md:w-1/2 lg:w-1/3 md:mb-0 mx-12 my-12">
+          <FooterAwards />
+        </div> 
       </div>
-    </footer>
+    </div>
   );
 };
 
