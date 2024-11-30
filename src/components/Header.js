@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import downArrowIcon from './arrow-down-angle.svg';
+
 const menuItems = [
   {
     title: "About Us",
@@ -54,72 +55,72 @@ const menuItems = [
     ],
   },
 ];
-const Navbar = () => {
-    const [activeItem, setActiveItem] = useState(null); // State to track active dropdown item
-  
-    const handleClick = (item) => {
-      setActiveItem(item === activeItem ? null : item); // Toggle active state
-    };
 
-    const handleLinkClick = (href) => {
-      if (window.confirm(`Are you sure you want to leave Alliance Finance ?`)) {
-        // Don't prevent default behavior, allowing the link to open in a new tab
-        return true;
-      }
-      return false;
-    };
-  
-    return (
-      <nav className="flex justify-between items-center py-4 px-7 bg-white shadow-md">
-        <div className="flex items-center">
-          <a href="https://www.alliancefinance.lk" className="flex items-center">
-            <img
-              src="https://www.alliancefinance.lk/wp-content/uploads/2024/01/logo-new-removebg-preview.webp"
-              alt="Alliance Finance"
-              className="w-20 h-auto"
-            />
-          </a>
-        </div>
-        <ul className="hidden md:flex space-x-8">
-          {menuItems.map((item, index) => (
-            <li key={index} className="relative">
-              <button
-                className={`flex items-center text-gray-800 hover:text-orange-500 focus:outline-none border-b-2 border-transparent hover:border-b-2 hover:border-b-orange-500 hover:underline-offset-8 ${
-                  activeItem === item ? 'active' : ''
-                }`} // Add 'active' class visually indicate open state
-                onClick={() => handleClick(item)} // Call handleClick on button click
-                
-              >
-                {item.title}
-                <img src={downArrowIcon} alt="Dropdown Icon" className="ml-1 size-2" />
-              </button>
-              {item.links && ( // Render dropdown only if links exist
-                <div className={`absolute bg-white shadow-lg mt-2 border rounded-md ${activeItem === item ? 'block' : 'hidden'} min-w-48 md:min-w-64 max-w-screen-sm`}>
-                  <ul className="py-2">
-                    {item.links.map((link, idx) => (
-                      <li key={idx}>
-                        <a
+const Navbar = () => {
+  const [activeItem, setActiveItem] = useState(null); // State to track active dropdown item
+
+  const handleClick = (item) => {
+    setActiveItem(item === activeItem ? null : item); // Toggle active state
+  };
+
+  const handleLinkClick = (e, href) => {
+    e.preventDefault(); // Prevent default link behavior
+
+    if (window.confirm("Are you sure you want to leave Alliance Finance?")) {
+      window.open(href, '_blank'); // Open the link in a new tab/window
+    }
+  };
+
+  return (
+    <nav className="flex justify-between items-center py-4 px-7 bg-white shadow-md">
+      <div className="flex items-center">
+        <a href="https://www.alliancefinance.lk" className="flex items-center">
+          <img
+            src="https://www.alliancefinance.lk/wp-content/uploads/2024/01/logo-new-removebg-preview.webp"
+            alt="Alliance Finance"
+            className="w-20 h-auto"
+          />
+        </a>
+      </div>
+      <ul className="hidden md:flex space-x-8">
+        {menuItems.map((item, index) => (
+          <li key={index} className="relative">
+            <button
+              className={`flex items-center text-gray-800 hover:text-orange-500 focus:outline-none border-b-2 border-transparent hover:border-b-2 hover:border-b-orange-500 hover:underline-offset-8 ${
+                activeItem === item ? 'active' : ''
+              }`} // Add 'active' class visually indicate open state
+              onClick={() => handleClick(item)} // Call handleClick on button click
+            >
+              {item.title}
+              <img src={downArrowIcon} alt="Dropdown Icon" className="ml-1 size-2" />
+            </button>
+            {item.links && ( // Render dropdown only if links exist
+              <div className={`absolute bg-white shadow-lg mt-2 border rounded-md ${activeItem === item ? 'block' : 'hidden'} min-w-48 md:min-w-64 max-w-screen-sm`}>
+                <ul className="py-2">
+                  {item.links.map((link, idx) => (
+                    <li key={idx}>
+                      <a
                         href={link.href}
                         className="block px-4 py-2 text-gray-600 hover:bg-orange-50 hover:text-orange-500"
-                        onClick={() => handleLinkClick(link.href)} // Call handleLinkClick on link click
+                        onClick={(e) => handleLinkClick(e, link.href)} // Pass the event and href
                       >
-                          {link.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-        <div className="flex space-x-4">
-          <div className="text-sm text-gray-600 md:block">
-            <span>Hotline: 1321 | Email: info@alliancefinance.lk</span>
-          </div>
+                        {link.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className="flex space-x-4">
+        <div className="text-sm text-gray-600 md:block">
+          <span>Hotline: 1321 | Email: info@alliancefinance.lk</span>
         </div>
-      </nav>
-    );
-  };
-  
-  export default Navbar;
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

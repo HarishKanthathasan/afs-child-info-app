@@ -1,12 +1,29 @@
-# Getting Started with Create React App
+# Alliance Finance
+![Dashboard Screenshot](public/Alliance Finance Company.png)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Prerequisites
 
-## Available Scripts
+* **Node.js and npm (or yarn):** Ensure you have them installed on your system. Download them from https://nodejs.org/en/.
 
-In the project directory, you can run:
+## Installation
+**Clone the repository:**
+   ```bash
+   git clone
 
-### `npm start`
+**Install dependencies:**
+   ```bash
+   npm install
+
+## Run the code
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+### `serve -s build`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
@@ -18,15 +35,6 @@ You may also see any lint errors in the console.
 
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ### `npm run eject`

@@ -4,8 +4,12 @@ import ChildForm from "./components/ChildForm";
 import ParentForm from "./components/ParentForm";
 import ConfirmationModal from "./components/ConfirmationModal";
 import Footer from "./components/Footer";
+import WhatsAppButton from "./components/WhatsAppButton";
+import ContactUsSection from "./components/ContactUsSection";
+import axios from "axios";
 
 const App = () => {
+  // State for child and parent form data
   const [childFormData, setChildFormData] = useState({
     childName: "",
     dob: "",
@@ -27,10 +31,11 @@ const App = () => {
     relationship: "",
   });
 
+  // State for validation errors and submission feedback
   const [errors, setErrors] = useState({});
-  const [submissionError, setSubmissionError] = useState(""); // To display below the submit button
+  const [submissionError, setSubmissionError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  
+
   // Handle changes in the child form fields
   const handleChildChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +55,7 @@ const App = () => {
 
     // Child form validation
     if (!childFormData.childName) {
-      formErrors.childName = "Full Name is required";
+      formErrors.childName = "Child Name is required";
       isValid = false;
     }
     if (!childFormData.dob) {
@@ -62,8 +67,7 @@ const App = () => {
       isValid = false;
     }
     if (!childFormData.birthCertificateNumber) {
-      formErrors.birthCertificateNumber =
-        "Birth Certificate Number is required";
+      formErrors.birthCertificateNumber = "Birth Certificate Number is required";
       isValid = false;
     }
     if (!childFormData.dateOfIssue) {
@@ -85,7 +89,7 @@ const App = () => {
 
     // Parent form validation
     if (!parentFormData.parentName) {
-      formErrors.parentName = "Full Name is required";
+      formErrors.parentName = "Parent Name is required";
       isValid = false;
     }
     if (!parentFormData.nic) {
@@ -117,28 +121,24 @@ const App = () => {
     return isValid;
   };
 
-  // Handle the form submission
+  // Handle form submission
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5000/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ childFormData, parentFormData }),
+      // Send form data to backend
+      const response = await axios.post("http://localhost:3000/submit", {
+        childFormData,
+        parentFormData,
       });
 
-      const result = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         setModalOpen(true);
         setSubmissionError("");
       } else {
-        setSubmissionError(result.message || "Submission failed. Try again.");
+        setSubmissionError("Submission failed. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting the form:", error);
@@ -150,28 +150,62 @@ const App = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <Header />
       <main className="flex-1 bg-gray-50 p-8">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ChildForm onChange={handleChildChange} errors={errors} />
-          <ParentForm onChange={handleParentChange} errors={errors} />
+        <div className="container mx-auto">
+          {/* Child Form Section */}
+          <div className="flex flex-col bg-white p-6 rounded-lg shadow-md mb-8">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="w-full md:w-1/2">
+                <ChildForm onChange={handleChildChange} errors={errors} />
+              </div>
+              <div className="w-full md:w-1/2 flex items-center">
+                <img
+                  src="https://www.alliancefinance.lk/wp-content/uploads/2024/01/regular-saving.webp"
+                  alt="Child"
+                  className="w-full rounded-lg hidden md:block"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Parent Form Section */}
+          <div className="flex flex-col bg-white p-6 rounded-lg shadow-md">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="w-full md:w-1/2">
+                <img
+                  src="https://www.alliancefinance.lk/wp-content/uploads/2024/05/371494127_165471586592403_7252068926377158011_n-1000x1000-1-1-768x76811-ezgif.com-optiwebp-2.webp"
+                  alt="Parent"
+                  className="w-full rounded-lg hidden md:block"
+                />
+              </div>
+              <div className="w-full md:w-1/2">
+                <ParentForm onChange={handleParentChange} errors={errors} />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="text-center py-4">
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700"
+            >
+              Submit
+            </button>
+            {submissionError && (
+              <p className="text-red-500 text-sm mt-2">{submissionError}</p>
+            )}
+          </div>
         </div>
-        <div className="text-center py-4">
-          <button
-            onClick={handleSubmit}
-            className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700"
-          >
-            Submit
-          </button>
-          {submissionError && (
-            <p className="text-red-500 text-sm mt-2">{submissionError}</p>
-          )}
-        </div>
+
+        {/* Confirmation Modal */}
         {modalOpen && (
           <ConfirmationModal
             onClose={() => setModalOpen(false)}
-            onConfirm={() => setModalOpen(false)}
           />
         )}
       </main>
+      <WhatsAppButton />
+      <ContactUsSection />
       <Footer />
     </div>
   );

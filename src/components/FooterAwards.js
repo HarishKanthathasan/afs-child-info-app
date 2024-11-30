@@ -16,8 +16,8 @@ const Footer = () => {
           <a href="#" className="text-6xl text-blue-600 hover:text-blue-800 " onClick={() => handleLinkClick("https://www.facebook.com/afcplc/")} >
             <i className="fab fa-facebook"></i>
           </a>
-          <a href="#" className="text-6xl text-blue-400 hover:text-blue-600" onClick={() => handleLinkClick("https://twitter.com/afc_plc")} >
-            <i className="fab fa-twitter"></i>
+          <a href="#" className="text-6xl text-black hover:text-gray-500" onClick={() => handleLinkClick("https://twitter.com/afc_plc")} >
+          <i className="fab fa-x-twitter"></i>
           </a>
           <a href="#" className="text-6xl text-pink-600 hover:text-pink-800" onClick={() => handleLinkClick("https://www.instagram.com/afcplc/")} >
             <i className="fab fa-instagram"></i>
