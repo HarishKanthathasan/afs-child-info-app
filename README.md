@@ -1,5 +1,5 @@
 # Alliance Finance
-![Dashboard Screenshot](public/Alliance Finance Company.png)
+![Screenshot](public\Alliance Finance Company.png)
 
 ## Prerequisites
 
@@ -7,14 +7,22 @@
 
 ## Installation
 **Clone the repository:**
-   ```bash
    git clone
 
 **Install dependencies:**
    ```bash
    npm install
 
-## Run the code
+## Run backend code
+```bash
+   cd backend
+   node server.js
+
+## Run frontend code
+```bash
+   npm start
+   
+```
 ### `npm run build`
 
 Builds the app for production to the `build` folder.\

@@ -7,6 +7,8 @@ import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
 import ContactUsSection from "./components/ContactUsSection";
 import axios from "axios";
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 const App = () => {
   // State for child and parent form data
@@ -121,22 +123,42 @@ const App = () => {
     return isValid;
   };
 
-  // Handle form submission
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
+  const handleOpenModal = () => {
+    if (validateForm()) {
+      setModalOpen(true);
     }
+  };
 
+  const handleConfirmSubmission = async () => {
+    setModalOpen(false);
     try {
-      // Send form data to backend
-      const response = await axios.post("http://localhost:3000/submit", {
+      const response = await axios.post("http://localhost:5000/submit", {
         childFormData,
         parentFormData,
       });
-
+  
       if (response.status === 200) {
-        setModalOpen(true);
+        alert("Form submitted successfully!");
         setSubmissionError("");
+        setChildFormData({
+          childName: "",
+          dob: "",
+          placeOfBirth: "",
+          birthCertificateNumber: "",
+          dateOfIssue: "",
+          nationality: "",
+          address: "",
+          school: "",
+        });
+        setParentFormData({
+          parentName: "",
+          nic: "",
+          contact: "",
+          parentAddress: "",
+          email: "",
+          occupation: "",
+          relationship: "",
+        });
       } else {
         setSubmissionError("Submission failed. Please try again.");
       }
@@ -145,6 +167,7 @@ const App = () => {
       setSubmissionError("An unexpected error occurred.");
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -157,7 +180,7 @@ const App = () => {
               <div className="w-full md:w-1/2">
                 <ChildForm onChange={handleChildChange} errors={errors} />
               </div>
-              <div className="w-full md:w-1/2 flex items-center">
+              <div className="w-full md:w-1/2 flex items-center justify-self-center">
                 <img
                   src="https://www.alliancefinance.lk/wp-content/uploads/2024/01/regular-saving.webp"
                   alt="Child"
@@ -170,7 +193,7 @@ const App = () => {
           {/* Parent Form Section */}
           <div className="flex flex-col bg-white p-6 rounded-lg shadow-md">
             <div className="flex flex-col md:flex-row gap-8">
-              <div className="w-full md:w-1/2">
+              <div className="w-full md:w-1/2 flex items-center justify-self-center">
                 <img
                   src="https://www.alliancefinance.lk/wp-content/uploads/2024/05/371494127_165471586592403_7252068926377158011_n-1000x1000-1-1-768x76811-ezgif.com-optiwebp-2.webp"
                   alt="Parent"
@@ -186,7 +209,7 @@ const App = () => {
           {/* Submit Button */}
           <div className="text-center py-4">
             <button
-              onClick={handleSubmit}
+              onClick={handleOpenModal}
               className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700"
             >
               Submit
@@ -201,11 +224,12 @@ const App = () => {
         {modalOpen && (
           <ConfirmationModal
             onClose={() => setModalOpen(false)}
+            onConfirm={handleConfirmSubmission}
           />
         )}
+        <WhatsAppButton />
+        <ContactUsSection />
       </main>
-      <WhatsAppButton />
-      <ContactUsSection />
       <Footer />
     </div>
   );

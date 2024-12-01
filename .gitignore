@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-/routesonar-289013-a4f8421db058.json
+/backend/routesonar-289013-a4f8421db058.json
 # dependencies
 /node_modules
 /.pnp
