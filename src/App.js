@@ -7,14 +7,13 @@ import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
 import ContactUsSection from "./components/ContactUsSection";
 import axios from "axios";
-import ReCAPTCHA from "react-google-recaptcha";
-
 
 const App = () => {
   // State for child and parent form data
   const [childFormData, setChildFormData] = useState({
     childName: "",
     dob: "",
+    eighteenthBirthday: "",
     placeOfBirth: "",
     birthCertificateNumber: "",
     dateOfIssue: "",
@@ -33,89 +32,99 @@ const App = () => {
     relationship: "",
   });
 
-  // State for validation errors and submission feedback
+  // State for errors and feedback
   const [errors, setErrors] = useState({});
   const [submissionError, setSubmissionError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Handle changes in the child form fields
+  // Handle input changes for child form
   const handleChildChange = (e) => {
     const { name, value } = e.target;
     setChildFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle changes in the parent form fields
+  // Handle input changes for parent form
   const handleParentChange = (e) => {
     const { name, value } = e.target;
     setParentFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validate the entire form (client-side validation)
+  // Validate text-only fields
+  const isTextOnly = (value) => /^[a-zA-Z\s]+$/.test(value);
+
+  // Validate email
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Validate contact number
+  const isValidContact = (contact) => /^\d{10}$/.test(contact);
+
+  // Validate the form
   const validateForm = () => {
-    let formErrors = {};
+    const formErrors = {};
     let isValid = true;
 
     // Child form validation
-    if (!childFormData.childName) {
-      formErrors.childName = "Child Name is required";
+    if (!childFormData.childName || !isTextOnly(childFormData.childName)) {
+      formErrors.childName = "Child Name must contain only text.";
       isValid = false;
     }
     if (!childFormData.dob) {
-      formErrors.dob = "Date of Birth is required";
+      formErrors.dob = "Date of Birth is required.";
       isValid = false;
     }
     if (!childFormData.placeOfBirth) {
-      formErrors.placeOfBirth = "Place of Birth is required";
+      formErrors.placeOfBirth = "Place of Birth is required.";
       isValid = false;
     }
     if (!childFormData.birthCertificateNumber) {
-      formErrors.birthCertificateNumber = "Birth Certificate Number is required";
+      formErrors.birthCertificateNumber = "Birth Certificate Number is required.";
       isValid = false;
     }
     if (!childFormData.dateOfIssue) {
-      formErrors.dateOfIssue = "Date of Issue is required";
+      formErrors.dateOfIssue = "Date of Issue is required.";
       isValid = false;
     }
-    if (!childFormData.nationality) {
-      formErrors.nationality = "Nationality is required";
+    if (!childFormData.nationality || !isTextOnly(childFormData.nationality)) {
+      formErrors.nationality = "Nationality must contain only text.";
       isValid = false;
     }
     if (!childFormData.address) {
-      formErrors.address = "Address is required";
+      formErrors.address = "Address is required.";
       isValid = false;
     }
-    if (!childFormData.school) {
-      formErrors.school = "School is required";
+    if (!childFormData.school || !isTextOnly(childFormData.school)) {
+      formErrors.school = "School must contain only text.";
       isValid = false;
     }
 
     // Parent form validation
-    if (!parentFormData.parentName) {
-      formErrors.parentName = "Parent Name is required";
+    if (!parentFormData.parentName || !isTextOnly(parentFormData.parentName)) {
+      formErrors.parentName = "Parent Name must contain only text.";
       isValid = false;
     }
     if (!parentFormData.nic) {
-      formErrors.nic = "NIC is required";
+      formErrors.nic = "NIC is required.";
       isValid = false;
     }
-    if (!parentFormData.contact) {
-      formErrors.contact = "Contact Number is required";
+    if (!parentFormData.contact || !isValidContact(parentFormData.contact)) {
+      formErrors.contact = "Contact must contain exactly 10 digits.";
       isValid = false;
     }
     if (!parentFormData.parentAddress) {
-      formErrors.parentAddress = "Address is required";
+      formErrors.parentAddress = "Parent Address is required.";
       isValid = false;
     }
-    if (!parentFormData.email) {
-      formErrors.email = "Email is required";
+    if (!parentFormData.email || !isValidEmail(parentFormData.email)) {
+      formErrors.email = "Invalid email format.";
       isValid = false;
     }
-    if (!parentFormData.occupation) {
-      formErrors.occupation = "Occupation is required";
+    if (!parentFormData.occupation || !isTextOnly(parentFormData.occupation)) {
+      formErrors.occupation = "Occupation must contain only text.";
       isValid = false;
     }
     if (!parentFormData.relationship) {
-      formErrors.relationship = "Relationship is required";
+      formErrors.relationship = "Relationship is required.";
       isValid = false;
     }
 
@@ -123,12 +132,14 @@ const App = () => {
     return isValid;
   };
 
+  // Open confirmation modal
   const handleOpenModal = () => {
     if (validateForm()) {
       setModalOpen(true);
     }
   };
 
+  // Handle form submission
   const handleConfirmSubmission = async () => {
     setModalOpen(false);
     try {
@@ -136,13 +147,15 @@ const App = () => {
         childFormData,
         parentFormData,
       });
-  
+
       if (response.status === 200) {
         alert("Form submitted successfully!");
         setSubmissionError("");
+        // Reset form data
         setChildFormData({
           childName: "",
           dob: "",
+          eighteenthBirthday: "",
           placeOfBirth: "",
           birthCertificateNumber: "",
           dateOfIssue: "",
@@ -167,7 +180,6 @@ const App = () => {
       setSubmissionError("An unexpected error occurred.");
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">

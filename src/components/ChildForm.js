@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const ChildForm = ({ onChange, errors }) => {
-  const [eighteenthBirthday, setEighteenthBirthday] = useState('');
+const ChildForm = ({ onChange, errors, formData }) => {
+  const [eighteenthBirthday, setEighteenthBirthday] = useState("");
 
   // Function to calculate the 18th birthday based on DOB
   const handleDOBChange = (e) => {
     const dob = e.target.value;
     const dobDate = new Date(dob);
+
+    let eighteenthBirthdayValue = "";
 
     if (!isNaN(dobDate)) {
       const eighteenthBirthdayDate = new Date(
@@ -14,13 +16,15 @@ const ChildForm = ({ onChange, errors }) => {
         dobDate.getMonth(),
         dobDate.getDate() + 1
       );
-      setEighteenthBirthday(eighteenthBirthdayDate.toISOString().split('T')[0]);
+      eighteenthBirthdayValue = eighteenthBirthdayDate.toISOString().split("T")[0];
+      setEighteenthBirthday(eighteenthBirthdayValue);
     } else {
-      setEighteenthBirthday('');
+      setEighteenthBirthday("");
     }
 
-    // Trigger parent form's onChange function
-    onChange(e);
+    // Trigger parent form's onChange function with updated value
+    onChange({ target: { name: "dob", value: dob } });
+    onChange({ target: { name: "eighteenthBirthday", value: eighteenthBirthdayValue } });
   };
 
   return (
@@ -34,7 +38,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="text"
             name="childName"
             onChange={onChange}
-            className={`border p-2 w-full rounded ${errors.childName && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.childName && "border-red-500"}`}
           />
           {errors.childName && <p className="text-red-500 text-sm">{errors.childName}</p>}
         </div>
@@ -46,7 +50,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="date"
             name="dob"
             onChange={handleDOBChange}
-            className={`border p-2 w-full rounded ${errors.dob && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.dob && "border-red-500"}`}
           />
           {errors.dob && <p className="text-red-500 text-sm">{errors.dob}</p>}
         </div>
@@ -70,7 +74,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="text"
             name="placeOfBirth"
             onChange={onChange}
-            className={`border p-2 w-full rounded ${errors.placeOfBirth && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.placeOfBirth && "border-red-500"}`}
           />
           {errors.placeOfBirth && <p className="text-red-500 text-sm">{errors.placeOfBirth}</p>}
         </div>
@@ -83,7 +87,7 @@ const ChildForm = ({ onChange, errors }) => {
             name="birthCertificateNumber"
             onChange={onChange}
             className={`border p-2 w-full rounded ${
-              errors.birthCertificateNumber && 'border-red-500'
+              errors.birthCertificateNumber && "border-red-500"
             }`}
           />
           {errors.birthCertificateNumber && (
@@ -98,7 +102,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="date"
             name="dateOfIssue"
             onChange={onChange}
-            className={`border p-2 w-full rounded ${errors.dateOfIssue && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.dateOfIssue && "border-red-500"}`}
           />
           {errors.dateOfIssue && <p className="text-red-500 text-sm">{errors.dateOfIssue}</p>}
         </div>
@@ -110,7 +114,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="text"
             name="nationality"
             onChange={onChange}
-            className={`border p-2 w-full rounded ${errors.nationality && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.nationality && "border-red-500"}`}
           />
           {errors.nationality && <p className="text-red-500 text-sm">{errors.nationality}</p>}
         </div>
@@ -122,7 +126,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="text"
             name="address"
             onChange={onChange}
-            className={`border p-2 w-full rounded ${errors.address && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.address && "border-red-500"}`}
           />
           {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
         </div>
@@ -134,7 +138,7 @@ const ChildForm = ({ onChange, errors }) => {
             type="text"
             name="school"
             onChange={onChange}
-            className={`border p-2 w-full rounded ${errors.school && 'border-red-500'}`}
+            className={`border p-2 w-full rounded ${errors.school && "border-red-500"}`}
           />
           {errors.school && <p className="text-red-500 text-sm">{errors.school}</p>}
         </div>

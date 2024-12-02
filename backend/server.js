@@ -1,51 +1,57 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const { google } = require("googleapis");
-require("dotenv").config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { google } = require('googleapis');
+const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:3000', // Frontend's URL
-}));
+app.use(cors());
 app.use(bodyParser.json());
 
-// Load Google Sheets credentials
-const privateKey = process.env.GOOGLE_PRIVATE_KEY;
-const formattedPrivateKey = privateKey.replace(/\\n/gm, '\n');
+// Load service account key
+const SERVICE_ACCOUNT_FILE = 'afchelios-9ea4a470a859.json';
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+const SPREADSHEET_ID = '1RdWnfpfY2A42DNxG-_D1Djany77_yMZmwiEgj2OYOOQ';
+const RANGE = 'Sheet1!A2:P500';
 
-const credentials = {
-  type: "service_account",
-  project_id: process.env.GOOGLE_PROJECT_ID,
-  private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
-  private_key: formattedPrivateKey,
-  client_email: process.env.GOOGLE_CLIENT_EMAIL,
-  client_id: process.env.GOOGLE_CLIENT_ID,
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(process.env.GOOGLE_CLIENT_EMAIL)}`,
+const authorize = (callback) => {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: SERVICE_ACCOUNT_FILE,
+    scopes: SCOPES,
+  });
+
+  auth.getClient().then((authClient) => {
+    callback(authClient);
+  }).catch((err) => {
+    console.error('Error creating auth client:', err);
+  });
 };
 
-// Google Sheets setup
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
-const auth = new google.auth.JWT(
-  credentials.client_email,
-  null,
-  credentials.private_key,
-  SCOPES
-);
-const sheets = google.sheets({ version: "v4", auth });
+const appendData = (auth, data) => {
+  const sheets = google.sheets({ version: 'v4', auth });
+  const resource = {
+    values: [data],
+  };
 
-// Google Sheet ID and range
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
-const RANGE = "Sheet1!A1:N1";
+  sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: RANGE,
+    valueInputOption: 'USER_ENTERED',
+    resource,
+  }, (err, result) => {
+    if (err) {
+      console.error('Error appending data to Google Sheets:', err.message);
+    } else {
+      console.log(`${result.data.updates.updatedCells} cells appended.`);
+    }
+  });
+};
 
 // API to handle form submission
-app.post("/submit", async (req, res) => {
+app.post('/submit', (req, res) => {
   const { childFormData, parentFormData } = req.body;
 
   // Validate form fields
@@ -55,13 +61,13 @@ app.post("/submit", async (req, res) => {
     !childFormData.dob ||
     !parentFormData.nic
   ) {
-    return res.status(400).json({ message: "Form validation failed" });
+    return res.status(400).json({ message: 'Form validation failed' });
   }
 
-  // Prepare data for Google Sheets
   const rowData = [
     childFormData.childName,
     childFormData.dob,
+    childFormData.eighteenthBirthday, 
     childFormData.placeOfBirth,
     childFormData.birthCertificateNumber,
     childFormData.dateOfIssue,
@@ -76,26 +82,15 @@ app.post("/submit", async (req, res) => {
     parentFormData.occupation,
     parentFormData.relationship,
   ];
+  
 
-  // Append data to Google Sheets
-  try {
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE,
-      valueInputOption: "USER_ENTERED",
-      resource: {
-        values: [rowData],
-      },
-    });
-    res.status(200).json({ message: "Form submitted successfully!" });
-  } catch (err) {
-    const googleError = err.response?.data?.error?.message || err.message;
-    console.error("Error saving data to Google Sheets:", googleError);
-    res.status(500).json({ message: `Google Sheets Error: ${googleError}` });
-  }
+  authorize((auth) => {
+    appendData(auth, rowData);
+    res.send('Data submitted successfully');
+  });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
