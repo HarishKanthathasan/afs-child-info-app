@@ -18,6 +18,7 @@
 ## Run backend code
 ```bash
    cd backend
+   npm init -y
    node server.js
 ```
 
